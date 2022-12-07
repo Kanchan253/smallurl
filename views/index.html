@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Make URL Smaller</title>
+  </head>
+  <body>
+    <h1>Url Shortner</h1>
+    <form onsubmit="shorten(event)">
+      <select id="prefix">
+        <option value="https://">https://</option>
+        <option value="http://">http://</option>
+      </select>
+      <input type="text" id="originalurl" placeholder="Enter URL" required />
+      <input type="text" id="customurl" placeholder="Enter Custom URL" />
+      <button type="submit">Shorten</button>
+    </form>
+    <script>
+      let checkSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
+  <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+  <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+</svg>`,
+        copySVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+  <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+  <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+</svg>`;
+      async function shorten(e) {
+        e.preventDefault();
+        let res = await fetch("/api/shorten", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            url:
+              document.querySelector("#prefix").value +
+              document.querySelector("#originalurl").value,
+            custom: document.querySelector("#customurl").value,
+          }),
+        });
+        let data = await res.json();
+        if (data.success) {
+          let short = `${window.location.origin}/${data.small}`;
+          if (document.querySelector("#generated")) {
+            document.querySelector("#generated").remove();
+            document.querySelector("#copy").remove();
+          }
+          let copy = document.createElement("button");
+          copy.id = "copy";
+          copy.innerHTML = copySVG;
+          copy.onclick = () => {
+            navigator.clipboard.writeText(short);
+            copy.innerHTML = checkSVG;
+            setTimeout(() => {
+              copy.innerHTML = copySVG;
+            }, 1000);
+          };
+          let a = document.createElement("a");
+          a.id = "generated";
+          a.href = short;
+          a.innerText = short;
+          document.body.appendChild(a);
+          document.body.appendChild(copy);
+        } else {
+          if (data.msg.code == 11000) {
+            alert("Custom URL already exists.\nPlease try another one.");
+          } else {
+            alert("Something went wrong");
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
