@@ -5,10 +5,13 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const SmallUrl = require("./model/SmallUrl");
 
-mongoose.connect("mongodb://127.0.0.1:27017/smallurldb", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(
+  process.env.mongouri || "mongodb://127.0.0.1:27017/smallurldb",
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  }
+);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
