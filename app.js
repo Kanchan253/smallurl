@@ -20,17 +20,6 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => res.sendFile(__dirname + "/views/index.html"));
 
-app.get("/:id", (req, res) => {
-  const url = req.params.id;
-  SmallUrl.findOne({ small: url }, (err, data) => {
-    if (err) {
-      console.log(err);
-    } else {
-      res.redirect(data.original);
-    }
-  });
-});
-
 app.post("/api/shorten", (req, res) => {
   const { url, custom } = req.body;
   let small;
@@ -44,6 +33,18 @@ app.post("/api/shorten", (req, res) => {
       res.json({ success: false, msg: err });
     } else {
       res.json({ small: data.small, success: true });
+    }
+  });
+});
+app.get("/:id", (req, res) => {
+  const url = req.params.id;
+  SmallUrl.findOne({ small: url }, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else if (data) {
+      res.redirect(data.original);
+    } else {
+      res.sendFile(__dirname + "/views/index.html");
     }
   });
 });

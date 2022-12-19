@@ -10,6 +10,7 @@
     "body-parser": "^1.20.1",
     "express": "^4.18.2",
     "mongoose": "^6.8.0",
+    "particles.js": "^2.0.0",
     "shortid": "^2.2.16"
   }
 }
